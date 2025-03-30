@@ -35,8 +35,10 @@ model Track {
   artistId    String
   artist      Artist    @relation(fields: [artistId], references: [id])
   streams     Stream[]
+  rewards     Reward[]  // 👈 AGGIUNGI QUESTA RIGA
   createdAt   DateTime  @default(now())
 }
+
 
 model Concert {
   id        String   @id @default(cuid())

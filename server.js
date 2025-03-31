@@ -23,6 +23,11 @@ app.get("/", (req, res) => {
   res.send("🎧 Streaming Rewards Backend API");
 });
 
+// TEST ROUTE
+app.get("/ping", (req, res) => {
+  res.json({ message: "pong" });
+});
+
 // AVVIO SERVER
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);

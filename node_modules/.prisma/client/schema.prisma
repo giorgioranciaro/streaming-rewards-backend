@@ -18,12 +18,24 @@ model Fan {
 }
 
 model Artist {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  bio       String?
-  createdAt DateTime @default(now())
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  password      String
+  bio           String?
+  rewardOptions RewardOption[]
+  createdAt     DateTime       @default(now())
+}
+
+model RewardOption {
+  id              String   @id @default(cuid())
+  artist          Artist   @relation(fields: [artistId], references: [id])
+  artistId        String
+  type            String // "cash", "merch", "vip", "content", etc.
+  description     String?
+  requiredStreams Int // es. 100, 500, 1000...
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
 }
 
 model Label {

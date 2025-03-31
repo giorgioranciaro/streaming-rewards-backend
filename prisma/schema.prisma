@@ -1,3 +1,5 @@
+// prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,74 +9,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Label {
-  id        String    @id @default(cuid())
+model Fan {
+  id        String   @id @default(cuid())
   name      String
-  email     String    @unique
+  email     String   @unique
   password  String
-  artists   Artist[]
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
 }
 
 model Artist {
-  id        String    @id @default(cuid())
-  name      String
-  bio       String?
-  photoUrl  String?
-  labelId   String?
-  label     Label?    @relation(fields: [labelId], references: [id])
-  tracks    Track[]
-  concerts  Concert[]
-  createdAt DateTime  @default(now())
-}
-
-model Track {
-  id          String    @id @default(cuid())
-  title       String
-  platformUrl String
-  artistId    String
-  artist      Artist    @relation(fields: [artistId], references: [id])
-  streams     Stream[]
-  rewards     Reward[]  // 👈 AGGIUNGI QUESTA RIGA
-  createdAt   DateTime  @default(now())
-}
-
-
-model Concert {
   id        String   @id @default(cuid())
-  title     String
-  date      DateTime
-  location  String
-  artistId  String
-  artist    Artist   @relation(fields: [artistId], references: [id])
-}
-
-model Fan {
-  id        String    @id @default(cuid())
   name      String
-  email     String    @unique
+  email     String   @unique
   password  String
-  streams   Stream[]
-  rewards   Reward[]
-  createdAt DateTime  @default(now())
+  bio       String?
+  createdAt DateTime @default(now())
 }
 
-model Stream {
+model Label {
   id        String   @id @default(cuid())
-  fanId     String
-  trackId   String
-  listenedAt DateTime @default(now())
-  duration  Int
-  fan       Fan      @relation(fields: [fanId], references: [id])
-  track     Track    @relation(fields: [trackId], references: [id])
-}
-
-model Reward {
-  id        String   @id @default(cuid())
-  fanId     String
-  trackId   String
-  amount    Float
-  issuedAt  DateTime @default(now())
-  fan       Fan      @relation(fields: [fanId], references: [id])
-  track     Track    @relation(fields: [trackId], references: [id])
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
 }

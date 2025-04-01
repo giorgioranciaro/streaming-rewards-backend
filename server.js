@@ -11,19 +11,26 @@ const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 4000;
 
-app.use(cors());
+// 👇 AGGIORNA QUI IL CORS
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://streaming-rewards-frontend-clean.vercel.app"
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
+
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/artist", artistRoutes);
 
-// HOME
 app.get("/", (req, res) => {
   res.send("🎧 Streaming Rewards Backend API");
 });
 
-// AVVIO SERVER - QUESTO È ESSENZIALE
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
 });
-

@@ -11,14 +11,9 @@ const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 4000;
 
-// 👇 AGGIORNA QUI IL CORS
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://streaming-rewards-frontend-clean.vercel.app"
-];
-
+// ✅ ABILITA CORS CORRETTAMENTE
 app.use(cors({
-  origin: allowedOrigins,
+  origin: ["http://localhost:3000", "https://streaming-rewards-frontend-clean.vercel.app"],
   credentials: true,
 }));
 

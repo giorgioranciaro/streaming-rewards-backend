@@ -14,7 +14,6 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json());
 
-// ...middleware
 app.use("/api/auth", authRoutes);
 app.use("/api/artist", artistRoutes);
 
@@ -23,12 +22,8 @@ app.get("/", (req, res) => {
   res.send("🎧 Streaming Rewards Backend API");
 });
 
-// TEST ROUTE
-app.get("/ping", (req, res) => {
-  res.json({ message: "pong" });
+// AVVIO SERVER - QUESTO È ESSENZIALE
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
 
-// AVVIO SERVER
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
-});

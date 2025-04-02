@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node server.js",
     "postinstall": "prisma generate && prisma migrate deploy"
+    "start": "node server.js"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",

@@ -11,18 +11,22 @@ const prisma = new PrismaClient();
 const PORT = process.env.PORT || 4000;
 
 // ✅ Middleware
-app.use(cors());
+app.use(cors({
+  origin: "*", // oppure specifica 'https://streaming-rewards-frontend-clean.vercel.app' per sicurezza
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json());
 
 // ✅ Rotte
 app.use("/api/auth", authRoutes);
 
-// ✅ Root route per check
+// ✅ Rotta root per test server
 app.get("/", (req, res) => {
   res.send("🎧 Backend ONLINE ✅");
 });
 
-// ✅ Avvio server (necessario per Railway)
+// ✅ Avvio server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
 });

@@ -27,6 +27,6 @@ app.get("/", (req, res) => {
 });
 
 // ✅ Avvio server
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
+app.listen(process.env.PORT, () => {
+  console.log(`🚀 Server runniing on port ${process.env.PORT}`);
 });

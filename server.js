@@ -8,7 +8,6 @@ dotenv.config();
 
 const app = express();
 const prisma = new PrismaClient();
-const PORT = parseInt(process.env.PORT) || 4000;
 
 // ✅ Middleware
 app.use(cors({

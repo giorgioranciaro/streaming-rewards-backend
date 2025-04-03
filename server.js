@@ -8,6 +8,7 @@ dotenv.config();
 
 const app = express();
 const prisma = new PrismaClient();
+const PORT = process.env.PORT || 4000;
 
 // ✅ Middleware
 app.use(cors({
@@ -26,6 +27,6 @@ app.get("/", (req, res) => {
 });
 
 // ✅ Avvio server
-app.listen(process.env.PORT, () => {
-  console.log(`🚀 Server runniing on port ${process.env.PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
 });

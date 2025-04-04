@@ -53,4 +53,4 @@ router.post("/rewards", authenticateArtist, async (req, res) => {
   }
 });
 
-export default router;
+module.export = router;

@@ -24,6 +24,11 @@ function authenticateArtist(req, res, next) {
   }
 }
 
+// Get all rewards for the logged-in artist
+router.get("/rewards", async (req, res) => {
+  const rewards = await prisma.reward.findMany();
+  res.json(rewards);
+
 // Crea una nuova reward
 router.post("/rewards", authenticateArtist, async (req, res) => {
   const { type, description, requiredStreams } = req.body;

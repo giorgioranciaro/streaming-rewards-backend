@@ -16,7 +16,7 @@ app.use(cors({
   origin: "*", // o specifica 'https://streaming-rewards-frontend-clean.vercel.app'
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
-}
+}));
 app.use(express.json());
 
 // Rotte

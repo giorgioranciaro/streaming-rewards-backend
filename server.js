@@ -7,30 +7,34 @@ import artistRoutes from "./routes/artist.js";
 
 dotenv.config();
 
-const app = express(); // ✅ deve venire prima!
+const app = express();
 const prisma = new PrismaClient();
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 4000;
 
-// Middleware
+// ✅ CORS Middleware completo
 app.use(cors({
-  origin: "https://streaming-rewards-frontend-clean.vercel.app", // meglio specifico
+  origin: "https://streaming-rewards-frontend-clean.vercel.app", // dominio frontend
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 }));
+
+// ✅ Preflight handler (IMPORTANTISSIMO per evitare 404)
+app.options("*", cors());
+
+// ✅ Body parser
 app.use(express.json());
 
-// Rotte
-app.options("*", cors()); // preflightß
+// ✅ Rotte
 app.use("/api/auth", authRoutes);
 app.use("/api/artist", artistRoutes);
 
-// Rotta root
+// ✅ Root route
 app.get("/", (req, res) => {
   res.send("🎧 Backend ONLINE ✅");
 });
 
-// Avvio server
+// ✅ Avvio server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
 });

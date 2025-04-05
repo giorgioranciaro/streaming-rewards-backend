@@ -13,13 +13,15 @@ const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(cors({
-  origin: "*", // o specifica 'https://streaming-rewards-frontend-clean.vercel.app'
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: "https://streaming-rewards-frontend-clean.vercel.app", // meglio specifico
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 }));
 app.use(express.json());
 
 // Rotte
+app.options("*", cors()); // preflightß
 app.use("/api/auth", authRoutes);
 app.use("/api/artist", artistRoutes);
 

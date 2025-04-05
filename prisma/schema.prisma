@@ -24,7 +24,21 @@ model Artist {
   password      String
   bio           String?
   rewardOptions RewardOption[]
-  createdAt     DateTime       @default(now())
+  rewards       Reward[] // ✅ Aggiunta richiesta
+
+  createdAt DateTime @default(now())
+}
+
+model Reward {
+  id              String   @id @default(cuid())
+  artistId        String
+  type            String
+  description     String
+  requiredStreams Int
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  artist Artist @relation(fields: [artistId], references: [id])
 }
 
 model RewardOption {

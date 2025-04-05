@@ -12,7 +12,8 @@ const prisma = new PrismaClient();
 const PORT = process.env.PORT || 4000;
 
 // ✅ CORS Middleware completo
-app.use(cors({
+app.use(
+ cors({
   origin: "https://streaming-rewards-frontend-clean.vercel.app", // dominio frontend
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],

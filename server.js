@@ -12,12 +12,10 @@ const prisma = new PrismaClient();
 const PORT = process.env.PORT || 4000;
 
 // ✅ CORS Middleware completo
-app.use(
- cors({
-  origin: "https://streaming-rewards-frontend-clean.vercel.app", // dominio frontend
+app.use(cors({
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
 }));
 
 // ✅ Preflight handler (IMPORTANTISSIMO per evitare 404)

@@ -6,7 +6,7 @@ const router = express.Router();
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
-// Middleware di autenticazione per artisti
+// 🔐 Middleware di autenticazione per artisti
 function authenticateArtist(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: "Missing token" });
@@ -15,22 +15,31 @@ function authenticateArtist(req, res, next) {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     if (decoded.role !== "artist") {
-      return res.status(403).json({ error: "Access denied" });
+      return res.status(403).json({ error: "Access denied: not an artist" });
     }
     req.user = decoded;
     next();
   } catch (err) {
-    res.status(401).json({ error: "Invalid token" });
+    console.error("Token verification failed:", err.message);
+    res.status(401).json({ error: "Invalid or expired token" });
   }
 }
 
-// ✅ GET all rewards
-router.get("/rewards", async (req, res) => {
-  const rewards = await prisma.reward.findMany();
-  res.json(rewards);
+// 📥 GET all rewards (solo dell'artista autenticato)
+router.get("/rewards", authenticateArtist, async (req, res) => {
+  try {
+    const rewards = await prisma.reward.findMany({
+      where: { artistId: req.user.userId },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(rewards);
+  } catch (err) {
+    console.error("Error fetching rewards:", err);
+    res.status(500).json({ error: "Failed to fetch rewards" });
+  }
 });
 
-// ✅ POST crea reward
+// ➕ POST crea una nuova reward
 router.post("/rewards", authenticateArtist, async (req, res) => {
   const { type, description, requiredStreams } = req.body;
 
@@ -42,15 +51,15 @@ router.post("/rewards", authenticateArtist, async (req, res) => {
     const reward = await prisma.reward.create({
       data: {
         type,
-        description,
-        requiredStreams,
+        description: description || "",
+        requiredStreams: parseInt(requiredStreams),
         artistId: req.user.userId,
       },
     });
     res.status(201).json(reward);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Something went wrong" });
+    console.error("Error creating reward:", err);
+    res.status(500).json({ error: "Something went wrong while creating reward" });
   }
 });
 

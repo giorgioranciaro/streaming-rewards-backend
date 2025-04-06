@@ -6,6 +6,7 @@ const router = express.Router();
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
+
 // Middleware di autenticazione
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -109,7 +110,7 @@ router.put("/me", authenticateToken, async (req, res) => {
   }
 });
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
+
 
 // ✅ Middleware per autenticazione artista
 function authenticateArtist(req, res, next) {

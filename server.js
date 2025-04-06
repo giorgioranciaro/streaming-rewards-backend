@@ -1,18 +1,23 @@
 import express from "express";
 import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
+import cors from "cors";
+
 import authRoutes from "./routes/auth.js";
 import artistRoutes from "./routes/artist.js";
-import cors from "cors";
 
 dotenv.config();
 
+const app = express();
+const prisma = new PrismaClient();
+const PORT = process.env.PORT || 4000;
+
 const allowedOrigins = [
+  "https://streaming-rewards-frontend-clean.vercel.app",
   "https://hoppscotch.io",
-  "https://streaming-rewards-frontend-clean.vercel.app"
 ];
 
-const corsOptions = {
+app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -20,21 +25,16 @@ const corsOptions = {
       callback(new Error("Not allowed by CORS"));
     }
   },
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
-};
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
 
-const app = express();
-const prisma = new PrismaClient();
-const PORT = process.env.PORT || 4000;
-
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Preflight handler
+// Gestisce correttamente le richieste preflight
+app.options("*", cors());
 
 app.use(express.json());
 
-// Rotte
 app.use("/api/auth", authRoutes);
 app.use("/api/artist", artistRoutes);
 

@@ -6,6 +6,11 @@ import artistRoutes from "./routes/artist.js";
 
 dotenv.config();
 
+
+const allowedOrigins = [
+  "https://hoppscotch.io",
+  "https://streaming-rewards-frontend-clean.vercel.app"
+];
 const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 4000;
@@ -14,7 +19,13 @@ const PORT = process.env.PORT || 4000;
 import cors from "cors";
 
 app.use(cors({
-  origin: "https://streaming-rewards-frontend-clean.vercel.app", // 👈 ESATTO!
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));

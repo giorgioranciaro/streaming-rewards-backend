@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
 import authRoutes from "./routes/auth.js";
 import artistRoutes from "./routes/artist.js";
+import cors from "cors";
 
 dotenv.config();
 
@@ -16,13 +17,13 @@ const prisma = new PrismaClient();
 const PORT = process.env.PORT || 4000;
 
 // ✅ CORS Middleware completo
-import cors from "cors";
 
 // CORS Config
 const corsOptions = {
   origin: "https://streaming-rewards-frontend-clean.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 };
 
 app.use(cors(corsOptions));

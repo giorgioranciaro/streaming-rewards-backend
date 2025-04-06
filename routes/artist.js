@@ -44,6 +44,29 @@ router.get("/me", authenticateToken, async (req, res) => {
   }
 });
 
+
+// ✅ PUT /api/artist/me – Aggiorna dati artista loggato
+router.put("/me", authenticateToken, async (req, res) => {
+  try {
+    const artistId = req.user.userId;
+    const { name, email, bio } = req.body;
+
+    const updatedArtist = await prisma.artist.update({
+      where: { id: artistId },
+      data: {
+        name,
+        email,
+        bio,
+      },
+    });
+
+    res.json(updatedArtist);
+  } catch (err) {
+    console.error("Errore nell'aggiornamento artista:", err);
+    res.status(500).json({ error: "Errore durante l'aggiornamento" });
+  }
+});
+
 // ✅ GET tutte le rewards dell'artista loggato
 router.get("/rewards", authenticateToken, async (req, res) => {
   try {

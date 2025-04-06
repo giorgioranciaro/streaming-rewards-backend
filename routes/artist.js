@@ -6,60 +6,106 @@ const router = express.Router();
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
-// 🔐 Middleware di autenticazione per artisti
-function authenticateArtist(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).json({ error: "Missing token" });
+// Middleware di autenticazione
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
-  const token = authHeader.split(" ")[1];
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.role !== "artist") {
-      return res.status(403).json({ error: "Access denied: not an artist" });
-    }
-    req.user = decoded;
+  if (!token) return res.status(401).json({ error: "Token mancante" });
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: "Token non valido" });
+    req.user = user;
     next();
-  } catch (err) {
-    console.error("Token verification failed:", err.message);
-    res.status(401).json({ error: "Invalid or expired token" });
-  }
+  });
 }
 
-// 📥 GET all rewards (solo dell'artista autenticato)
-router.get("/rewards", authenticateArtist, async (req, res) => {
+// ✅ GET /api/artist/rewards – Recupera le rewards dell'artista loggato
+router.get("/rewards", authenticateToken, async (req, res) => {
   try {
+    const artistId = req.user.userId;
+
     const rewards = await prisma.reward.findMany({
-      where: { artistId: req.user.userId },
+      where: { artistId },
       orderBy: { createdAt: "desc" },
     });
+
     res.json(rewards);
   } catch (err) {
-    console.error("Error fetching rewards:", err);
-    res.status(500).json({ error: "Failed to fetch rewards" });
+    console.error("Errore nel recupero delle rewards:", err);
+    res.status(500).json({ error: "Something went wrong" });
   }
 });
 
-// ➕ POST crea una nuova reward
-router.post("/rewards", authenticateArtist, async (req, res) => {
-  const { type, description, requiredStreams } = req.body;
-
-  if (!type || !requiredStreams) {
-    return res.status(400).json({ error: "Type and requiredStreams are required" });
-  }
-
+// ✅ POST /api/artist/rewards – Crea una nuova reward per l'artista loggato
+router.post("/rewards", authenticateToken, async (req, res) => {
   try {
+    const artistId = req.user.userId;
+    const { type, description, requiredStreams } = req.body;
+
     const reward = await prisma.reward.create({
       data: {
+        artistId,
         type,
-        description: description || "",
+        description,
         requiredStreams: parseInt(requiredStreams),
-        artistId: req.user.userId,
       },
     });
+
     res.status(201).json(reward);
   } catch (err) {
-    console.error("Error creating reward:", err);
-    res.status(500).json({ error: "Something went wrong while creating reward" });
+    console.error("Errore nella creazione della reward:", err);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+// ✅ GET /api/artist/me – Recupera i dati dell'artista loggato
+router.get("/me", authenticateToken, async (req, res) => {
+  try {
+    const artist = await prisma.artist.findUnique({
+      where: { id: req.user.userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        bio: true,
+        createdAt: true,
+      },
+    });
+
+    if (!artist) return res.status(404).json({ error: "Artista non trovato" });
+
+    res.json(artist);
+  } catch (err) {
+    console.error("Errore nel recupero dell'artista:", err);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+// ✅ PUT /api/artist/me – Aggiorna i dati dell'artista loggato
+router.put("/me", authenticateToken, async (req, res) => {
+  try {
+    const { name, email, bio } = req.body;
+
+    const updated = await prisma.artist.update({
+      where: { id: req.user.userId },
+      data: {
+        name,
+        email,
+        bio,
+      },
+    });
+
+    res.json({
+      id: updated.id,
+      name: updated.name,
+      email: updated.email,
+      bio: updated.bio,
+      createdAt: updated.createdAt,
+    });
+  } catch (err) {
+    console.error("Errore nell'aggiornamento dell'artista:", err);
+    res.status(500).json({ error: "Something went wrong" });
   }
 });
 

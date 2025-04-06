@@ -109,7 +109,6 @@ router.put("/me", authenticateToken, async (req, res) => {
   }
 });
 
-import jwt from "jsonwebtoken";
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
 // ✅ Middleware per autenticazione artista

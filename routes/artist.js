@@ -19,6 +19,31 @@ function authenticateToken(req, res, next) {
   });
 }
 
+// ✅ GET /api/artist/me - Ottieni i dati dell'artista loggato
+router.get("/me", authenticateToken, async (req, res) => {
+  try {
+    const artist = await prisma.artist.findUnique({
+      where: { id: req.user.userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        bio: true,
+        createdAt: true
+      }
+    });
+
+    if (!artist) {
+      return res.status(404).json({ error: "Artista non trovato" });
+    }
+
+    res.json(artist);
+  } catch (err) {
+    console.error("Errore nel recupero dei dati artista:", err);
+    res.status(500).json({ error: "Errore interno del server" });
+  }
+});
+
 // ✅ GET tutte le rewards dell'artista loggato
 router.get("/rewards", authenticateToken, async (req, res) => {
   try {

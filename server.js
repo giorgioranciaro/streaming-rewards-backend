@@ -18,18 +18,14 @@ const PORT = process.env.PORT || 4000;
 // ✅ CORS Middleware completo
 import cors from "cors";
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+// CORS Config
+const corsOptions = {
+  origin: "https://streaming-rewards-frontend-clean.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
+app.use(cors(corsOptions));
 
 // ✅ Preflight handler (IMPORTANTISSIMO per evitare 404)
 app.options("*", cors());

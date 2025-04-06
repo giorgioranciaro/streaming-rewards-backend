@@ -109,4 +109,57 @@ router.put("/me", authenticateToken, async (req, res) => {
   }
 });
 
+import jwt from "jsonwebtoken";
+const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
+
+// ✅ Middleware per autenticazione artista
+function authenticateArtist(req, res, next) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Missing or invalid token" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    if (decoded.role !== "artist") {
+      return res.status(403).json({ error: "Unauthorized role" });
+    }
+
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+}
+
+// ✅ Rotta per ottenere i dati dell’artista loggato
+router.get("/me", authenticateArtist, async (req, res) => {
+  try {
+    const artist = await prisma.artist.findUnique({
+      where: { id: req.user.userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        bio: true,
+        createdAt: true,
+      },
+    });
+
+    if (!artist) {
+      return res.status(404).json({ error: "Artist not found" });
+    }
+
+    res.json(artist);
+  } catch (error) {
+    console.error("Error fetching artist:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
 export default router;

@@ -183,4 +183,101 @@ router.delete("/rewards/:id", authenticateToken, async (req, res) => {
   }
 });
 
+// 🔗 STREAMING LINKS ENDPOINTS (da inserire PRIMA di `export default router`)
+
+// GET all streaming links for the logged-in artist
+router.get("/links", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ error: "Missing token" });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const artistId = decoded.userId;
+
+    const links = await prisma.streamingLink.findMany({
+      where: { artistId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.json(links);
+  } catch (err) {
+    console.error("GET /links error:", err);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+// POST a new streaming link
+router.post("/links", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ error: "Missing token" });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const artistId = decoded.userId;
+
+    const { platform, url } = req.body;
+
+    if (!platform || !url) {
+      return res.status(400).json({ error: "Platform and URL are required" });
+    }
+
+    const newLink = await prisma.streamingLink.create({
+      data: {
+        platform,
+        url,
+        artistId,
+      },
+    });
+
+    res.status(201).json(newLink);
+  } catch (err) {
+    console.error("POST /links error:", err);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+// DELETE a streaming link
+router.delete("/links/:id", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ error: "Missing token" });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const artistId = decoded.userId;
+
+    const linkId = req.params.id;
+
+    // Check if the link belongs to the artist
+    const link = await prisma.streamingLink.findUnique({
+      where: { id: linkId },
+    });
+
+    if (!link || link.artistId !== artistId) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    await prisma.streamingLink.delete({
+      where: { id: linkId },
+    });
+
+    res.json({ message: "Link deleted" });
+  } catch (err) {
+    console.error("DELETE /links error:", err);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+
 export default router;

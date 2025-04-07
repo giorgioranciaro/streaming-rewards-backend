@@ -185,18 +185,10 @@ router.delete("/rewards/:id", authenticateToken, async (req, res) => {
 
 // 🔗 STREAMING LINKS ENDPOINTS (da inserire PRIMA di `export default router`)
 
-// GET all streaming links for the logged-in artist
-router.get("/links", async (req, res) => {
+// ✅ GET /api/artist/links - Recupera tutti i link dello streaming dell'artista loggato
+router.get("/links", authenticateToken, async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.split(" ")[1];
-
-    if (!token) {
-      return res.status(401).json({ error: "Missing token" });
-    }
-
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const artistId = decoded.userId;
+    const artistId = req.user.userId;
 
     const links = await prisma.streamingLink.findMany({
       where: { artistId },
@@ -205,24 +197,15 @@ router.get("/links", async (req, res) => {
 
     res.json(links);
   } catch (err) {
-    console.error("GET /links error:", err);
+    console.error("Errore nel recupero dei link:", err);
     res.status(500).json({ error: "Something went wrong" });
   }
 });
 
-// POST a new streaming link
-router.post("/links", async (req, res) => {
+// ✅ POST /api/artist/links - Crea un nuovo link di streaming
+router.post("/links", authenticateToken, async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.split(" ")[1];
-
-    if (!token) {
-      return res.status(401).json({ error: "Missing token" });
-    }
-
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const artistId = decoded.userId;
-
+    const artistId = req.user.userId;
     const { platform, url } = req.body;
 
     if (!platform || !url) {
@@ -239,27 +222,17 @@ router.post("/links", async (req, res) => {
 
     res.status(201).json(newLink);
   } catch (err) {
-    console.error("POST /links error:", err);
+    console.error("Errore nella creazione del link:", err);
     res.status(500).json({ error: "Something went wrong" });
   }
 });
 
-// DELETE a streaming link
-router.delete("/links/:id", async (req, res) => {
+// ✅ DELETE /api/artist/links/:id - Elimina un link di streaming
+router.delete("/links/:id", authenticateToken, async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.split(" ")[1];
-
-    if (!token) {
-      return res.status(401).json({ error: "Missing token" });
-    }
-
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const artistId = decoded.userId;
-
+    const artistId = req.user.userId;
     const linkId = req.params.id;
 
-    // Check if the link belongs to the artist
     const link = await prisma.streamingLink.findUnique({
       where: { id: linkId },
     });
@@ -274,10 +247,9 @@ router.delete("/links/:id", async (req, res) => {
 
     res.json({ message: "Link deleted" });
   } catch (err) {
-    console.error("DELETE /links error:", err);
+    console.error("Errore nell'eliminazione del link:", err);
     res.status(500).json({ error: "Something went wrong" });
   }
 });
-
 
 export default router;

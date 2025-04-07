@@ -139,6 +139,28 @@ router.put("/rewards/:id", authenticateToken, async (req, res) => {
   }
 });
 
+// ✅ GET /api/artist/profile - Ottieni i dati dell'artista loggato
+router.get("/profile", authenticateToken, async (req, res) => {
+  try {
+    const artist = await prisma.artist.findUnique({
+      where: { id: req.user.userId },
+    });
+
+    if (!artist) {
+      return res.status(404).json({ error: "Artist not found" });
+    }
+
+    res.json({
+      name: artist.name,
+      email: artist.email,
+      bio: artist.bio,
+    });
+  } catch (err) {
+    console.error("Error fetching artist profile:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // ✅ DELETE cancella reward
 router.delete("/rewards/:id", authenticateToken, async (req, res) => {
   const rewardId = req.params.id;

@@ -252,4 +252,23 @@ router.delete("/links/:id", authenticateToken, async (req, res) => {
   }
 });
 
+// ✅ GET streaming links per artista
+router.get("/links", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const artistId = decoded.userId;
+
+    const links = await prisma.streamingLink.findMany({
+      where: { artistId },
+    });
+
+    res.json(links);
+  } catch (error) {
+    console.error("Errore nel recuperare i link:", error);
+    res.status(500).json({ error: "Errore nel recuperare i link" });
+  }
+});
+
+
 export default router;
